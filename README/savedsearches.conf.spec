@@ -3,6 +3,8 @@ display.visualizations.custom.grids_column_chart.grids_column_chart.line_overlay
 display.visualizations.custom.grids_column_chart.grids_column_chart.show_values = <string>
 display.visualizations.custom.grids_column_chart.grids_column_chart.legend_position = <string>
 display.visualizations.custom.grids_column_chart.grids_column_chart.fieldColors = <string>
+display.visualizations.custom.grids_column_chart.grids_column_chart.bg_color = <string>
+display.visualizations.custom.grids_column_chart.grids_column_chart.txtval_color = <string>
 
 
 # X Axis 

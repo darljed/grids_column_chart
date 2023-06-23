@@ -76,6 +76,11 @@ getInitialDataParams: function() {
     });
 },
 
+// Override to respond to re-sizing events
+reflow: function() {
+    this.chart.resize({height: (this.$el.height() - 20), width: this.$el.width()});
+  },
+
 updateView: function(data, config) {
 
     let properties = {
@@ -88,13 +93,22 @@ updateView: function(data, config) {
         axis:{
             x:{
                 type: 'category',
-                categories: data.category
+                categories: data.category,
+                label: {
+                    position: "outer-center"
+                }
             },
             y: {
                 show: true,
+                label: {
+                    position: "outer-middle"
+                }
             },
             y2: {
                 show: false,
+                label: {
+                    position: "outer-middle"
+                }
             }
 
         },
@@ -103,6 +117,9 @@ updateView: function(data, config) {
             ratio: 0.5
           }
         },
+        size: {
+            height: "auto"
+          },
         bindto: "#"+this.id
       }
 
@@ -134,6 +151,14 @@ updateView: function(data, config) {
     }
 
 
+    // X
+    var xaxis_label = config[this.getPropertyNamespaceInfo().propertyNamespace + 'xaxis_label'] || false
+
+    // config/process X 
+    if(xaxis_label != false){
+        properties.axis.x.label['text'] = xaxis_label
+    }
+
     // Y 
     var yaxis_label = config[this.getPropertyNamespaceInfo().propertyNamespace + 'yaxis_label'] || this.myData.yaxis_label;
     var yaxis_min = config[this.getPropertyNamespaceInfo().propertyNamespace + 'yaxis_min'] || false;
@@ -159,7 +184,7 @@ updateView: function(data, config) {
     if(yaxis_max != false){
         properties.axis.y["max"] = parseInt(yaxis_max)
     }
-    properties.axis.y['label'] = yaxis_label
+    properties.axis.y.label['text'] = yaxis_label
 
     // Y2 
     var y2_use = config[this.getPropertyNamespaceInfo().propertyNamespace + 'y2_use'] || 'false';
@@ -190,12 +215,14 @@ updateView: function(data, config) {
             properties.axis.y2["max"] = parseInt(y2axis_max)
         }
         if(y2axis_label != false){
-            properties.axis.y2['label'] = y2axis_label
+            properties.axis.y2.label['text'] = y2axis_label
         }
     }
 
     // colors 
     let fieldColors = config[this.getPropertyNamespaceInfo().propertyNamespace + 'fieldColors'] || '';
+    let bg_color = config[this.getPropertyNamespaceInfo().propertyNamespace + 'bg_color'] || 'transparent';
+    let txtval_color = config[this.getPropertyNamespaceInfo().propertyNamespace + 'txtval_color'] || false;
 
     // config/process colors 
     if(fieldColors !=""){
@@ -206,6 +233,17 @@ updateView: function(data, config) {
             throw new SplunkVisualizationBase.VisualizationError(
                 'Colors only supports a valid json format.'
             );
+        }
+
+        if(bg_color != false){
+            properties['background'] = {
+                color: bg_color
+            }
+        }
+        if(show_values){
+            if(txtval_color != false){
+                properties.data.labels.colors = txtval_color
+            }
         }
 
     }
