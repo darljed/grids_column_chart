@@ -1,0 +1,6 @@
+/*
+ * CSS rules for visualization.
+ * Class namespacing is good practice.
+ */
+
+@import url(node_modules/billboard.js/dist/billboard.css)
