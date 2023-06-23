@@ -1,4 +1,94 @@
-<form class="splunk-formatter-section" section-label="format">
-    <!-- Add html here to create formatter options -->
+    <!-- A<form class="splunk-formatter-section" section-label="format">
+dd html here to create formatter options 
     <p>No Options.</p>
+</form>
+-->
+<form class="splunk-formatter-section" section-label="General">
+    <splunk-control-group label="Line Overlay Field">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.line_overlay_fields" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+
+    <splunk-control-group label="Show Values">
+        <splunk-radio-input name="{{VIZ_NAMESPACE}}.show_values" value="false">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </splunk-radio-input>
+</splunk-control-group>
+</form>
+
+<form class="splunk-formatter-section" section-label="X Axis">
+    <splunk-control-group label="X Axis">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.xaxis_label" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+</form>
+
+<form class="splunk-formatter-section" section-label="Y Axis">
+    <splunk-control-group label="Y Axis Label">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.yaxis_label" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+    <splunk-control-group label="Min">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.yaxis_min" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+    <splunk-control-group label="Max">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.yaxis_max" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+    <splunk-control-group label="Group">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.yaxis_field_group" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+</form>
+
+<form class="splunk-formatter-section" section-label="Y2 Axis">
+    <splunk-control-group label="Use Y2">
+        <splunk-radio-input name="{{VIZ_NAMESPACE}}.y2_use" value="false">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </splunk-radio-input>
+    </splunk-control-group>
+
+    <splunk-control-group label="Y2 Axis Label">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.y2axis_label" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+
+    <splunk-control-group label="Y2 Axis Fields">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.y2axis_fields" value="">
+        </splunk-text-input>
+    </splunk-control-group>
+
+    <splunk-control-group label="Min">
+            <splunk-text-input name="{{VIZ_NAMESPACE}}.y2axis_min" value="">
+            </splunk-text-input>
+    </splunk-control-group>
+
+    <splunk-control-group label="Max">
+            <splunk-text-input name="{{VIZ_NAMESPACE}}.y2axis_max" value="">
+            </splunk-text-input>
+    </splunk-control-group>
+
+
+</form>
+
+
+<form class="splunk-formatter-section" section-label="Legend">
+    <splunk-control-group label="Position">
+        <splunk-select name="{{VIZ_NAMESPACE}}.legend_position" value="right">
+            <option value="none">None</option>
+            <option value="right">Right</option>
+            <option value="bottom">Bottom</option>
+        </splunk-select>
+    </splunk-control-group>
+</form>
+
+
+<form class="splunk-formatter-section" section-label="Colors">
+    <splunk-control-group label="Field Colors">
+        <splunk-text-input name="{{VIZ_NAMESPACE}}.fieldColors" value="">
+        </splunk-text-input>
+    </splunk-control-group>
 </form>

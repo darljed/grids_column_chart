@@ -67,35 +67,39 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    // // Add a css selector class
 	    // this.$el.addClass('splunk-radial-meter');
 	    this.$el = $(this.el);
-
-	  
 	    this.id="grids-column"+Math.floor((Math.random() * 1000) + 1);
 	    this.$el.append('<div class="grids-viz"><div id="'+this.id+'"></div></div>');
-
+	    delete this.myData
+	    console.log("initial load:",this)
 	    
 	},
 
 	formatData: function(data, config) {
-	    
-	    console.log(data)
+	    // console.log(data)
 	    let fields = []
 	    for(var i = 0;i<data.fields.length;i++){
 	        fields.push(data.fields[i].name)
 	    }
-	    console.log(fields)
+	    // console.log(fields)
 	    data.rows.splice(0,0,fields)
 
 	    let newArr=[];
 	    let category_arr = [];
+
 	    for(var x=0;x<data.rows.length;x++){
 	        for(var i=0;i<data.rows[x].length;i++){
 	            if(x == 0){
 	                newArr.push([data.rows[x][i]])
 	            }
 	            else{
-	                category_arr.push(data.rows[x][0])
 	                newArr[i].push(data.rows[x][i])
 	            }
+	        }
+	        if(x == 0){
+	            data.yaxis_label = data.rows[x][0];
+	        }
+	        else{
+	            category_arr.push(data.rows[x][0])
 	        }
 	    }
 
@@ -103,7 +107,10 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	    data.rows = newArr;
 	    data.category = category_arr;
 	    data.category.push("")
-	    return data;
+	    if(!this.hasOwnProperty('myData')){
+	        this.myData = data
+	    }
+	    return this.myData;
 	},
 	 
 
@@ -116,31 +123,11 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 
 	updateView: function(data, config) {
 
-	    console.log('updateView data',data)
-	    // for(var i=1;i<data[0].length;i++){
-	    //     dataCategories.push(data[0][i])
-	    // }
-
-	    console.log(data.category)
-	    console.log(data.rows)
-	  
-	    // Fill in this part in the next steps.
-	    this.chart = bb.bb.generate({
+	    let properties = {
 	        data: {
 	          columns: data.rows,
 	          type: "bar", // for ESM specify as: bar()
-	          types: {
-	            'Total Defects':"line"
-	          },
-	          axes: {
-	            Compliance: "y2"
-	          },
 	          groups:[
-	            [
-	                "Critical Defects",
-	                "High Defects",
-	                "Medium Defects"
-	            ]
 	          ]
 	        },
 	        axis:{
@@ -148,11 +135,11 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	                type: 'category',
 	                categories: data.category
 	            },
-	            y2: {
+	            y: {
 	                show: true,
-	                type: "log",
-	                min: 10,
-	                max: 100
+	            },
+	            y2: {
+	                show: false,
 	            }
 
 	        },
@@ -162,7 +149,133 @@ define(["api/SplunkVisualizationBase","api/SplunkVisualizationUtils"], function(
 	          }
 	        },
 	        bindto: "#"+this.id
-	      });
+	      }
+
+	    // configs 
+	    var line_overlay_field = config[this.getPropertyNamespaceInfo().propertyNamespace + 'line_overlay_fields'] || '';
+	    var show_values = config[this.getPropertyNamespaceInfo().propertyNamespace + 'show_values'] || "false";
+	    var legend = config[this.getPropertyNamespaceInfo().propertyNamespace + 'legend_position'] || "bottom";
+
+	    //   config general 
+	    show_values = show_values=="true" ? true : false
+
+	    //   process general 
+	    if(show_values){
+	        properties.data["labels"] = {
+	            centered: true,
+	            colors: "#000",
+	        }
+	    }
+	    if(legend=="none"){
+	        properties["legend"] = {
+	            show: false
+	        }
+	    }
+	    else{
+	        properties["legend"] = {
+	            show: true,
+	            position: legend
+	        }
+	    }
+
+
+	    // Y 
+	    var yaxis_label = config[this.getPropertyNamespaceInfo().propertyNamespace + 'yaxis_label'] || this.myData.yaxis_label;
+	    var yaxis_min = config[this.getPropertyNamespaceInfo().propertyNamespace + 'yaxis_min'] || false;
+	    var yaxis_max = config[this.getPropertyNamespaceInfo().propertyNamespace + 'yaxis_max'] || false;
+	    var yaxis_field_group = config[this.getPropertyNamespaceInfo().propertyNamespace + 'yaxis_field_group'] || 'false';
+
+	    // config y 
+	    if(yaxis_field_group!=""){
+	        yaxis_field_group = yaxis_field_group.split(",")
+	        yaxis_field_group.forEach((element,index) => {
+	            yaxis_field_group[index] = element.trim()
+	        });
+	    }
+
+	    // process y
+	    if(yaxis_field_group.length > 0){
+	        properties.data.groups.push(yaxis_field_group)
+	    }
+
+	    if(yaxis_min != false){
+	        properties.axis.y["min"] = parseInt(yaxis_min)
+	    }
+	    if(yaxis_max != false){
+	        properties.axis.y["max"] = parseInt(yaxis_max)
+	    }
+	    properties.axis.y['label'] = yaxis_label
+
+	    // Y2 
+	    var y2_use = config[this.getPropertyNamespaceInfo().propertyNamespace + 'y2_use'] || 'false';
+	    var y2_fields = config[this.getPropertyNamespaceInfo().propertyNamespace + 'y2axis_fields'] || false;
+	    var y2axis_label = config[this.getPropertyNamespaceInfo().propertyNamespace + 'y2axis_label'] || false;
+	    var y2axis_min = config[this.getPropertyNamespaceInfo().propertyNamespace + 'y2axis_min'] || false;
+	    var y2axis_max = config[this.getPropertyNamespaceInfo().propertyNamespace + 'y2axis_max'] || false;
+
+	    // config y2 
+	    y2_use = y2_use == "true" ? true : false;
+	    y2_fields_list = {}
+	    if(y2_fields !== false)
+	    y2_fields = y2_fields.split(",");
+	    for(var i = 0; i<y2_fields.length;i++){
+	        y2_fields_list[y2_fields[i].trim()] = "y2"
+	    }
+
+	    console.log(y2_fields_list)
+
+	    // process y2
+	    if(y2_use){
+	        properties.axis.y2.show = true;
+	        properties.data["axes"] = y2_fields_list
+	        if(y2axis_min != false){
+	            properties.axis.y2["min"] = parseInt(y2axis_min)
+	        }
+	        if(y2axis_max != false){
+	            properties.axis.y2["max"] = parseInt(y2axis_max)
+	        }
+	        if(y2axis_label != false){
+	            properties.axis.y2['label'] = y2axis_label
+	        }
+	    }
+
+	    // colors 
+	    let fieldColors = config[this.getPropertyNamespaceInfo().propertyNamespace + 'fieldColors'] || '';
+
+	    // config/process colors 
+	    if(fieldColors !=""){
+	        try{
+	            fieldColors = JSON.parse(fieldColors)
+	            properties.data['colors'] = fieldColors
+	        }catch (error) {
+	            throw new SplunkVisualizationBase.VisualizationError(
+	                'Colors only supports a valid json format.'
+	            );
+	        }
+
+	    }
+
+
+
+
+
+	    // process line overlay \
+	    let has_line_overlay = false;
+	    let line_overlay = {}
+	    if(line_overlay_field.length>0){
+	        has_line_overlay = true;
+	        line_overlay_field = line_overlay_field.split(",")
+	        for(var i = 0;i<line_overlay_field.length;i++){
+	            line_overlay[line_overlay_field[i].trim()] = "line"
+	        }
+	    }
+	    // set line overlay 
+	    properties.data["types"] = line_overlay
+
+	    console.log(properties)
+	  
+	    // Fill in this part in the next steps.
+	    this.chart = bb.bb.generate(properties);
 	   
 	}
 	});
